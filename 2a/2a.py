@@ -65,6 +65,10 @@ def execute_next(state : State):
 
 def main(file):
     state = State(parse_input(file))
+    # kill me, just for 2a
+    state.mem[1] = 12
+    state.mem[2] = 2
+
     print("START")
     print(state)
 
