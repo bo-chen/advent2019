@@ -88,7 +88,7 @@ def main(file):
             execute_all(state)
             if (state.mem[0] == 19690720):
                 print(f"Noun: {n} Verb: {v} ")
-                break
+                return
 
 #main("sample3.txt")
 main("./input.txt")
