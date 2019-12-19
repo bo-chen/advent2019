@@ -6,12 +6,16 @@ DEBUG = False
 class State:
     instruction_counter: int = 0
     mem: list
+    inputs: list = []
+    outputs: list = []
+
     def __init__(self, mem: list, instruction_counter: int=0):
         self.mem = mem
         self.instruction_counter = instruction_counter
 
     def __str__(self):
         out = f"instruction_counter: {self.instruction_counter}\nmem:\n" 
+        out += f"inputs: {self.inputs}, outputs: {self.outputs}\n"
         i = 0
         for n in range(0,10):
             out += f"\t{n}"
@@ -36,7 +40,13 @@ def parse_input(file):
 
 OPCFG = {
     1  : {"op" : "ADD", "size" : 4}, 
-    2  : {"op" : "MUL", "size" : 4}, 
+    2  : {"op" : "MUL", "size" : 4},
+    3  : {"op" : "IN" , "size" : 2},
+    4  : {"op" : "OUT", "size" : 2},
+    5  : {"op" : "JPT", "size" : 3},
+    6  : {"op" : "JPF", "size" : 3},
+    7  : {"op" : "LT" , "size" : 4},
+    8  : {"op" : "EQ" , "size" : 4},
     99 : {"op" : "HALT", "size" : 1}
     }
 
@@ -65,6 +75,7 @@ class Instruction:
         self.argmodes.extend(["0"] * (self.size - 1 - len(self.argmodes)) )
 
     def savearg(self, state : State, pos : int, val : int):
+        print(self)
         if self.argmodes[pos] != "0":
             raise Exception("Wrong argmode to save", self)
         state.mem[self.args[pos]] =  val
@@ -83,12 +94,37 @@ def execute_next(state : State):
     ins = Instruction(state.mem[state.instruction_counter : state.instruction_counter + 4])
     if DEBUG:
         print(ins)
+
+    # normal instructions
     if ins.op == "ADD":
         ins.savearg(state, 2, ins.loadarg(state, 0) + ins.loadarg(state, 1))
     elif ins.op == "MUL":
         ins.savearg(state, 2, ins.loadarg(state, 0) * ins.loadarg(state, 1))
+    elif ins.op == "IN":
+        ins.savearg(state, 0, state.inputs.pop(0))
+    elif ins.op == "OUT":
+        state.outputs.append(ins.loadarg(state, 0))
+    # jump instructions
     elif ins.op == "HALT":
         return True
+    elif ins.op == "JPT":
+        if ins.loadarg(state, 0) != 0:
+            state.instruction_counter = ins.loadarg(state, 1)
+            return False
+    elif ins.op == "JPF":
+        if ins.loadarg(state, 0) == 0:
+            state.instruction_counter = ins.loadarg(state, 1)
+            return False
+    elif ins.op == "LT":
+        if ins.loadarg(state, 0) < ins.loadarg(state, 1):
+            ins.savearg(state, 2, 1)
+        else:
+            ins.savearg(state, 2, 0)
+    elif ins.op == "EQ":
+        if ins.loadarg(state, 0) == ins.loadarg(state, 1):
+            ins.savearg(state, 2, 1)
+        else:
+            ins.savearg(state, 2, 0)
 
     state.instruction_counter += ins.size
     return False
@@ -110,15 +146,11 @@ def execute_all(state : State):
         print(state)
 
 def main(file):
-    for n in range(0,100):
-        for v in range(0,100):
-            state = State(parse_input(file))
-            state.mem[1] = n
-            state.mem[2] = v
-            execute_all(state)
-            if (state.mem[0] == 19690720):
-                print(f"Noun: {n} Verb: {v} ")
-                return
+    state = State(parse_input(file))
+    state.inputs = [5]
 
-#main("sample3.txt")
-main("./input.txt")
+    execute_all(state)
+    print(state)
+
+#main("sample3")
+main("./input")
