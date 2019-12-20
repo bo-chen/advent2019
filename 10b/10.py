@@ -19,9 +19,7 @@ def parse_input(file):
 def dot(a, b):
     return a[0] * b[0] + a[1] * b[1] 
 
-def lucky_200(asteroids):
-    # should be at (11, 19) 253
-    a = (11,19)
+def lucky_200(asteroids, a):
     ts = list(asteroids)
     ts.remove(a)
     angles = {}
@@ -56,5 +54,6 @@ def lucky_200(asteroids):
     return 
 
 asts = parse_input("./input")
-# print(asts)
-lucky_200(asts)
+# should be at (11, 19) 253
+a = (11,19)
+lucky_200(asts, a)
