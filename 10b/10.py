@@ -42,13 +42,10 @@ def lucky_200(asteroids, a):
         else:
             angles[angle] = [t]
 
-    print(angles)
     all_as = list(sorted(angles.keys()))
-    print(len(all_as))
 
     the_angle = all_as[199]
     line = angles[the_angle]
-    print(line)
     print(list(sorted(line,key =(lambda t: (t[0]-a[0]) * (t[0]-a[0]) + (t[1]-a[1]) * (t[1] - a[1])))))
 
     return 
